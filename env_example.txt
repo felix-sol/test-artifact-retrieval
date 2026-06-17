@@ -1,0 +1,9 @@
+# LLM configuration
+#deployment_name = "Kimi-K2.6-Felix"
+AZURE_ENDPOINT = "https://mes-dev-agentic-coding.services.ai.azure.com/openai/v1" #openai endpoint
+API_KEY = "<Your_API_Key>"
+LLM_NAME = "Kimi-K2.6-Felix"
+EMBEDDING_MODEL_NAME = "text-embedding-3-large-Felix"
+
+# Embedding configuration, nur Name ist anders
+#deployment_name = "text-embedding-3-large-Felix"
