@@ -1,5 +1,5 @@
-from Embedding_Service import EmbeddingService
-from LLM_Service import LLMService
+from EmbeddingService import EmbeddingService
+from LlmService import LLMService
 
 
 class RetrievalService:

@@ -11,7 +11,7 @@ class EmbeddingService:
         self.model_name = os.environ.get("EMBEDDING_MODEL_NAME")
 
     
-    def generate_query_embedding(self, query):
+    def generate_query_embedding(self, content):
         client = OpenAI(
             base_url=self.azure_endpoint,
             api_key=self.api_key,
@@ -19,8 +19,13 @@ class EmbeddingService:
 
         embedding_response = client.embeddings.create(
             model=self.model_name,
-            input=query,
+            input=content,
             encoding_format="float"
         )
+        client.embeddings.batch.create
 
         return(embedding_response.data[0].embedding)
+    
+    
+    
+    
