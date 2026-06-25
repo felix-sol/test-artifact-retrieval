@@ -18,7 +18,8 @@ def copy_matching_files(repo_root: Path, target_root: Path, suffix: str) -> list
         # skip output folders if they live inside the repo
         dirnames[:] =[
             d for d in dirnames 
-            if(current_dir / d) != target_root
+            if "build" not in (current_dir / d).parts 
+            and (current_dir / d) != target_root
             and target_root not in (current_dir / d).parents
         ] 
 
@@ -31,35 +32,29 @@ def copy_matching_files(repo_root: Path, target_root: Path, suffix: str) -> list
             destination = target_root / rel_path
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, destination)
+            insert_meta_information(destination, rel_path, repo_root.name, suffix.lstrip("."))
             copied.append(source)
 
     return copied    
-
-def iter_repo_roots(git_root: Path) -> list[Path]:
-    return [  
-        p for p in git_root.iterdir()
-        if p.is_dir() and (p / ".git").exists()
-    ] 
-
-
+    
 def collect_feature_files(repo_root: str, repo_name: str, output_root: str) -> list[Path]:
     target = output_root / "feature_files" / f"feature_files_from_{repo_name}"
-    target.mkdir(parents=True, exist_ok=True)
+    # TODO: repo endung mitgeben, relativen Pfad, Paket und Filename mit an die extrahierten Dokumente anhängen
     return copy_matching_files(repo_root, target, ".feature")
 
 def collect_story_files(repo_root: str, repo_name: str, output_root: str) -> list[Path]:
     target = output_root / "story_files" / f"story_files_from_{repo_name}"
-    target.mkdir(parents=True, exist_ok=True)
+    # TODO: repo endung mitgeben, relativen Pfad, Paket und Filename mit an die extrahierten Dokumente anhängen
     return copy_matching_files(repo_root, target, ".story")
 
 def collect_inline_jbehave_java_files(repo_root: str, repo_name: str, output_root: str) -> list[Path]:
     target = output_root / "inline_jbehave_java_files" / f"inline_jbehave_java_files_from_{repo_name}"
-    target.mkdir(parents=True, exist_ok=True)
 
     copied: list[Path] = []
-    markers = ("@Scenario(",)
 
     for source in repo_root.rglob("*.java"):
+        if "build" in source.parts:
+            continue
         if output_root in source.parents:
             continue
         try:
@@ -67,24 +62,57 @@ def collect_inline_jbehave_java_files(repo_root: str, repo_name: str, output_roo
         except OSError:
             continue
 
-        if not any(marker in content for marker in markers):
+        if not looks_like_inline_spec(content):
             continue
 
         rel_path = source.relative_to(repo_root)
         destination = target / rel_path
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, destination)
+        insert_meta_information(destination, rel_path, repo_name, "java")
         copied.append(source)
 
     return copied   
 
+
+def iter_repo_roots(git_root: Path) -> list[Path]:
+    return [  
+        p for p in git_root.iterdir()
+        if p.is_dir() and (p / ".git").exists()
+    ] 
+
+def looks_like_inline_spec(content: str) -> bool:
+    return (
+        ("@Narrative(" in content or "@Scenario(" in content)
+        and any(step in content for step in ("Given(", "When(", "Then("))
+    )
+    
+
+def insert_meta_information(destination: Path, rel_path: Path, repo_name: str, source_type: str) -> None:
+    try:
+        original_content = destination.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return
+
+    metadata = (
+        "metadata:\n"
+        f"filename: {rel_path.name}\n"
+        f"repo_name: {repo_name}\n"
+        f"rel_path: {rel_path.as_posix()}\n"
+        f"source_type: {source_type}\n"
+        "\n"
+    )
+
+    destination.write_text(metadata + original_content, encoding="utf-8")    
+
+
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Collect feature and story files from central repo.")
+    parser = argparse.ArgumentParser(description="Collect feature and story files from repos.")
     parser.add_argument(
         "--repo-root",
         type=Path,
         default=DEFAULT_GIT_ROOT,
-        help="Path to the central repo to scan.",
+        help="Path to the repos to scan.",
     )
     parser.add_argument(
         "--output-root",
