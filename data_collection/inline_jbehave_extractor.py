@@ -363,7 +363,10 @@ def process_file(file_path: Path):
     return metadata, narratives, scenarios
 
 
-def output_name_for(file_path: Path):
+def output_name_for(file_path: Path, metadata):
+    repo_suffix = metadata.get("repo_name", "").split(".")[-1]
+    if repo_suffix:
+        return f"{file_path.stem}_{repo_suffix}_spec.txt"
     return f"{file_path.stem}_spec.txt"
 
 
@@ -405,7 +408,7 @@ def process_all_files(input_root: Path, output_root: Path):
         if not metadata and not narratives and not scenarios:
             continue
 
-        output_path = output_root / output_name_for(file_path)
+        output_path = output_root / output_name_for(file_path, metadata)
         write_output(output_path, metadata, narratives, scenarios)
         created_files.append(output_path)
 
