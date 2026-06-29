@@ -2,11 +2,8 @@ import tiktoken
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
+from data_ingestion_config import FEATURE_ROOT, STORY_ROOT, INLINE_JBEHAVE_ROOT
 
-DEFAULT_ROOT = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/data_collection/input_data")
-FEATURE_ROOT = DEFAULT_ROOT / "feature_files"
-STORY_ROOT = DEFAULT_ROOT / "story_files"
-INLINE_JBEHAVE_ROOT = DEFAULT_ROOT / "inline_jbehave_text_files"
 
 
 def count_tokens_per_document(file_root: Path, model_name: str = "text-embedding-3-large") -> list[int]:
