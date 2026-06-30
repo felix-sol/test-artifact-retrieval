@@ -1,4 +1,0 @@
-Das hier ist ein Beispiel File, um zu prüfen, ob die Informationen alle korrekt extrahiert werden.
-Dieser hat ein paar Zeilen zu Demonstration.
-Es handelt sich erstmal um einen Text File.
-Später werden es weitere Files. 

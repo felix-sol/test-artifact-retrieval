@@ -4,11 +4,13 @@ from typing import Tuple, Dict, TextIO
 from langchain_core.documents import Document
 import tiktoken
 from data_ingestion_config import INPUT_ROOT, MODEL_NAME
+import logging
 
 
 class TextProcessor:
 
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
         self.META_PATTERN = re.compile(r"^(filename|repo_name|rel_path|source_type):\s*(.*)$")
 
 
@@ -27,6 +29,7 @@ class TextProcessor:
 
             documents_to_embed.extend(documents_from_single_file)
 
+        self.logger.info(f"Created {len(documents_to_embed)} LangChain documents based on text chunks from directory '{file_root}'.")
         return documents_to_embed
     
 

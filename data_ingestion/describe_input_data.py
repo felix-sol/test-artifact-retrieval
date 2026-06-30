@@ -2,7 +2,7 @@ import tiktoken
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from data_ingestion_config import FEATURE_ROOT, STORY_ROOT, INLINE_JBEHAVE_ROOT
+from data_ingestion.config.data_ingestion_config import FEATURE_ROOT, STORY_ROOT, INLINE_JBEHAVE_ROOT
 
 
 
