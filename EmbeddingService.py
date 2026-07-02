@@ -27,6 +27,7 @@ class EmbeddingService:
         )
 
         self.logger.info(f"Generated embeddings for {len(inputs)} inputs.")
+        self.logger.info(f"Total tokens consumed for embedding generation: {embedding_response.usage.total_tokens}")
         return [item.embedding for item in embedding_response.data]
     
 

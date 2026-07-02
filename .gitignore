@@ -221,3 +221,5 @@ knowledge_base/qdrant_data/
 
 data_collection/raw_data/
 data_collection/input_data/
+
+data_ingestion/test/resources/

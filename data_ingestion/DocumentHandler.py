@@ -2,8 +2,9 @@
 from qdrant_client.grpc import PointStruct
 
 from EmbeddingService import EmbeddingService
-from TextProcessor import TextProcessor
-from data_ingestion_config import INPUT_ROOT
+from data_ingestion.TextProcessor import TextProcessor
+from config import setup_logging
+from data_ingestion.config.data_ingestion_config import INPUT_ROOT
 from knowledge_base.DatabaseManager import DatabaseManager
 import logging
 
@@ -17,7 +18,7 @@ class DocumentHandler:
         self.embedding_service = EmbeddingService()
         self.database_manager = DatabaseManager()  
 
-
+    # pipeline that triggers the creation of LangChain Documents, their embeddings, and the storage of the full object in Qdrant
     def ingest_knowledge_base(self):
         documents_to_embed, embeddings = self.embed_documents_from_directory()
 
@@ -34,16 +35,17 @@ class DocumentHandler:
 
 
 
-
+    # turns documents into a list to hand to the EmbeddingService and returns the embeddings
     def embed_documents_from_directory(self):
         documents_to_embed = self.text_processor.process_documents(self.root_dir)
+        # copy of the page content to only embed the text and not the metadata
         contents = [doc.page_content for doc in documents_to_embed]
         embeddings = self.embedding_service.generate_embeddings_for_documents(contents)
 
         self.logger.info(f"Number of Documents to embed: {len(documents_to_embed)}")
         self.logger.info(f"Number of page contents extracted: {len(contents)}")
         self.logger.info(f"Number of Embeddings generated: {len(embeddings)}")
-        return documents_to_embed, embeddings
+        return documents_to_embed, embeddings # both needed for an entry in vector database
 
 
     def store_full_object_in_qdrant(self, documents_to_embed, embeddings):
@@ -52,6 +54,7 @@ class DocumentHandler:
             collection_name="knowledge_base", 
             vector_size=len(embeddings[0]))
 
+        # combine original chunks with their embeddings into PointStruct objects for upsert into Qdrant
         points = [
             PointStruct(
                 id=index,
@@ -69,8 +72,15 @@ class DocumentHandler:
             points=points
         )
         self.logger.info("Points upserted into collection 'knowledge_base' successfully.")
-    
 
+
+def main() -> None:
+    setup_logging()
+    document_handler = DocumentHandler()
+    document_handler.ingest_knowledge_base()
+
+if __name__ == "__main__":
+    main()    
     
 
     
