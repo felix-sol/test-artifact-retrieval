@@ -1,5 +1,5 @@
 
-from qdrant_client.grpc import PointStruct
+from qdrant_client.models import PointStruct
 
 from EmbeddingService import EmbeddingService
 from data_ingestion.TextProcessor import TextProcessor
@@ -29,7 +29,7 @@ class DocumentHandler:
         if not embeddings:
             self.logger.warning("No embeddings generated.")
             return
-        
+        self.logger.info(f"Number of documents embedded: {len(documents_to_embed)}")
         self.store_full_object_in_qdrant(documents_to_embed, embeddings)
         self.logger.info("Knowledge base ingestion completed successfully.")
 
@@ -38,20 +38,31 @@ class DocumentHandler:
     # turns documents into a list to hand to the EmbeddingService and returns the embeddings
     def embed_documents_from_directory(self):
         documents_to_embed = self.text_processor.process_documents(self.root_dir)
+        self.logger.info(f"Number of Documents to embed: {len(documents_to_embed)}")
+
         # copy of the page content to only embed the text and not the metadata
         contents = [doc.page_content for doc in documents_to_embed]
-        embeddings = self.embedding_service.generate_embeddings_for_documents(contents)
-
-        self.logger.info(f"Number of Documents to embed: {len(documents_to_embed)}")
         self.logger.info(f"Number of page contents extracted: {len(contents)}")
-        self.logger.info(f"Number of Embeddings generated: {len(embeddings)}")
+
+        embeddings = self.embedding_service.generate_embeddings_for_documents(contents)
         return documents_to_embed, embeddings # both needed for an entry in vector database
 
 
     def store_full_object_in_qdrant(self, documents_to_embed, embeddings):
+        if len(documents_to_embed) != len(embeddings):
+            raise ValueError(
+                f"Mismatch: {len(documents_to_embed)} documents but {len(embeddings)} embeddings."
+                )
+
+        collection_name = "knowledge_base"
+
+        if self.database_manager.client.collection_exists(collection_name):
+            self.logger.info(f"Collection '{collection_name}' already exists. Removing it for a fresh start.")
+            self.database_manager.client.delete_collection(collection_name)
+        
         # create collection in Qdrant with the appropriate vector size
         self.database_manager.create_collection(
-            collection_name="knowledge_base", 
+            collection_name, 
             vector_size=len(embeddings[0]))
 
         # combine original chunks with their embeddings into PointStruct objects for upsert into Qdrant
@@ -67,11 +78,11 @@ class DocumentHandler:
             for index, (document, embedding) in enumerate(zip(documents_to_embed, embeddings))
         ]
 
-        self.database_manager.upsert_points(
-            collection_name="knowledge_base",
-            points=points
+        self.database_manager.upsert_points_in_batches(
+            collection_name=collection_name,
+            points=points,
         )
-        self.logger.info("Points upserted into collection 'knowledge_base' successfully.")
+        self.logger.info(f"Points upserted into collection '{collection_name}' successfully.")
 
 
 def main() -> None:

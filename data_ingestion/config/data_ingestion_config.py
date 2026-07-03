@@ -4,5 +4,3 @@ INPUT_ROOT = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-r
 FEATURE_ROOT = INPUT_ROOT / "feature_files"
 STORY_ROOT = INPUT_ROOT / "story_files"
 INLINE_JBEHAVE_ROOT = INPUT_ROOT / "inline_jbehave_text_files"
-
-MODEL_NAME = "text-embedding-3-large"

@@ -2,8 +2,8 @@ from pathlib import Path
 import re
 from typing import Tuple, Dict, TextIO
 from langchain_core.documents import Document
-import tiktoken
-from data_ingestion.config.data_ingestion_config import INPUT_ROOT, MODEL_NAME
+from TokenCounter import TokenCounter
+from data_ingestion.config.data_ingestion_config import INPUT_ROOT
 import logging
 
 
@@ -11,10 +11,8 @@ class TextProcessor:
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+        self.tokenCounter = TokenCounter()
         self.META_PATTERN = re.compile(r"^(filename|repo_name|rel_path|source_type):\s*(.*)$")
-        self.counter_not_chunked = 0
-        self.counter_chunked = 0
-        self.chunks_total = list()
         self.FEATURE_RE = re.compile(r"^\s*Feature:")
         self.SCENARIO_RE = re.compile(r"^\s*Scenario:")
         self.NARRATIVE_RE = re.compile(r"^\s*Narrative:")
@@ -37,12 +35,8 @@ class TextProcessor:
             documents_from_single_file = self.create_documents_from_chunks(text_chunks, metadata)
             documents_to_embed.extend(documents_from_single_file)
 
-        self.logger.info(f"Processed {counter} files in total.")
-        self.logger.info(f"Number of documents not to chunk: {self.counter_not_chunked}")
-        self.logger.info(f"Number of documents to chunk: {self.counter_chunked}")
-        self.logger.info(f"Total number of chunks created from documents larger than 256 Tokens: {len(self.chunks_total)}")
-        self.logger.info(f"Created {len(documents_to_embed)} LangChain documents based on text chunks from directory '{file_root}'.")
-        self.logger.info(f"{self.counter_not_chunked + len(self.chunks_total)} documents processed in total.")
+        self.logger.info(f"Processed {counter} files in total from '{file_root}'.")
+        self.logger.info(f"Created {len(documents_to_embed)} LangChain documents with chunks.")
         
         return documents_to_embed
     
@@ -119,13 +113,11 @@ class TextProcessor:
         in_header = False
         in_scenario = False
 
-        num_tokens = self.count_tokens_from_text(content, MODEL_NAME)
+        num_tokens = self.tokenCounter.count_tokens_from_text(content)
         if num_tokens <= 256:
             text_chunks.append(content)
-            self.counter_not_chunked += 1
             return text_chunks # small files are not chunked, treated as a single chunk
 
-        self.counter_chunked += 1
         lines = content.split("\n")
 
         chunk_header_lines = []
@@ -159,7 +151,6 @@ class TextProcessor:
                 if current_chunk_lines: # when the list is not empty a chunk gets created and added 
                     chunk = f"{chunk_header}\n" + "\n".join(current_chunk_lines).strip()
                     text_chunks.append(chunk)
-                    self.chunks_total.append(chunk)
                     current_chunk_lines = []
 
                 in_scenario = True
@@ -173,7 +164,6 @@ class TextProcessor:
         if current_chunk_lines:
             chunk = f"{chunk_header}\n" + "\n".join(current_chunk_lines).strip()
             text_chunks.append(chunk)
-            self.chunks_total.append(chunk)
 
         return text_chunks
     
@@ -182,19 +172,15 @@ class TextProcessor:
         documents_from_chunks = []
 
         for chunk in chunks:
-            documents_from_chunks.append(
-                Document(
-                    page_content=chunk,
-                    metadata=metadata
+            if chunk.strip(): # only create a document if the chunk is not empty  
+                documents_from_chunks.append(
+                    Document(
+                        page_content=chunk,
+                        metadata=metadata
+                    )
                 )
-            )
+            else:
+                self.logger.warning(f"Encountered an empty chunk for {metadata['filename']} ")    
 
         return documents_from_chunks
-    
-    # counts number of tokens in a text
-    @staticmethod
-    def count_tokens_from_text(text: str, model_name: str = MODEL_NAME) -> int:
-        encoding = tiktoken.encoding_for_model(model_name)
-        num_tokens = len(encoding.encode(text))
-        return num_tokens
     
