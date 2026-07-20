@@ -11,12 +11,11 @@ class TextProcessor:
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.tokenCounter = TokenCounter()
         self.META_PATTERN = re.compile(r"^(filename|repo_name|rel_path|source_type):\s*(.*)$")
         self.FEATURE_RE = re.compile(r"^\s*Feature:")
         self.SCENARIO_RE = re.compile(r"^\s*Scenario:")
         self.NARRATIVE_RE = re.compile(r"^\s*Narrative:")
-        self.SECTION_RE = re.compile(r"^\s*(Narrative|Scenario|):")
+        self.SECTION_RE = re.compile(r"^\s*(Narrative|Scenario):")
 
     # pipeline method to process all documents in a directory, returning a list of LangChain Document objects
     def process_documents(self, file_root: Path = INPUT_ROOT) -> list[Document]:
@@ -79,7 +78,7 @@ class TextProcessor:
                     continue
 
                 if in_file_meta_block:
-                    # End file meta block only when a new main section starts
+                    # End file meta block only when a new main section starts, only "Narrative" and "Story" exist in files that conatin in file Meta
                     if self.SECTION_RE.match(stripped):
                         in_file_meta_block = False
                         file_meta_extracted = True
@@ -108,12 +107,13 @@ class TextProcessor:
 
     # chunks documents based on the presence of Scenario annotations above the threshold of 256 tokens
     def chunk_text_from_file(self, content) -> list[str]:
+        token_counter = TokenCounter()
         text_chunks = [] 
 
         in_header = False
         in_scenario = False
 
-        num_tokens = self.tokenCounter.count_tokens_from_text(content)
+        num_tokens = token_counter.count_tokens_from_text(content)
         if num_tokens <= 256:
             text_chunks.append(content)
             return text_chunks # small files are not chunked, treated as a single chunk
@@ -148,7 +148,7 @@ class TextProcessor:
             stripped = line.strip()
 
             if self.SCENARIO_RE.match(stripped): 
-                if current_chunk_lines: # when the list is not empty a chunk gets created and added 
+                if current_chunk_lines: # when the list is not empty a chunk gets created and added so the first found scenario skips this block
                     chunk = f"{chunk_header}\n" + "\n".join(current_chunk_lines).strip()
                     text_chunks.append(chunk)
                     current_chunk_lines = []

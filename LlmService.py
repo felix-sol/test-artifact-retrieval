@@ -10,7 +10,7 @@ class LLMService:
         load_dotenv()
         self.azure_endpoint = os.environ.get("AZURE_ENDPOINT")
         self.api_key = os.environ.get("API_KEY")
-        self.model_name = os.environ.get("LLM_NAME")
+        self.model_name = os.environ.get("LLM_DEPLOYMENT_NAME")
         self.system_prompt = self.SYSTEM_PROMPT
 
 

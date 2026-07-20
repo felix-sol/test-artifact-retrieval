@@ -69,22 +69,10 @@ class TestDocumentHandlerPipeline(unittest.TestCase):
       for embedding in embeddings:
           self.assertIsInstance(embedding, list, "Embedding is not a list.")
           self.assertGreater(len(embedding), 0, "Embedding is empty.")
-
-      points = [
-            PointStruct(
-                id=index,
-                vector=embedding,
-                payload={
-                    "content": document.page_content,
-                    **document.metadata,
-                },
-            )
-            for index, (document, embedding) in enumerate(zip(documents_to_embed, embeddings, strict=True))
-        ]    
       
       for i, point in enumerate(points):
           self.assertEqual(point.id, i)
-          self.assertEqual(point.payload["content"], documents_to_embed[i].page_content)
+          self.assertEqual(point.payload["page_content"], documents_to_embed[i].page_content)
           self.assertEqual(point.vector, embeddings[i])
 
 
@@ -121,7 +109,7 @@ class TestDocumentHandlerPipeline(unittest.TestCase):
 
       for original, stored in zip(points, stored_points):
           self.assertEqual(stored.id, original.id)
-          self.assertEqual(stored.payload["content"] , original.payload["content"])
+          self.assertEqual(stored.payload["page_content"] , original.payload["page_content"])
           for key, value in original.payload.items():
               self.assertEqual(stored.payload[key], value)
       
@@ -136,8 +124,8 @@ class TestDocumentHandlerPipeline(unittest.TestCase):
                 id=index,
                 vector=embedding,
                 payload={
-                    "content": document.page_content,
-                    **document.metadata,
+                    "page_content": document.page_content,
+                    "metadata": document.metadata,
                 },
             )
             for index, (document, embedding) in enumerate(zip(documents_to_embed, embeddings, strict=True))

@@ -1,22 +1,22 @@
-
 from qdrant_client.models import PointStruct
 
 from EmbeddingService import EmbeddingService
 from data_ingestion.TextProcessor import TextProcessor
 from config import setup_logging
 from data_ingestion.config.data_ingestion_config import INPUT_ROOT
+from knowledge_base.config.knowledge_base_config import COLLECTION
 from knowledge_base.DatabaseManager import DatabaseManager
 import logging
 
 
 class DocumentHandler:
 
-    def __init__(self):
+    def __init__(self, text_processor: TextProcessor, embedding_service: EmbeddingService, database_manager: DatabaseManager):
         self.logger = logging.getLogger(__name__)
         self.root_dir = INPUT_ROOT
-        self.text_processor = TextProcessor()
-        self.embedding_service = EmbeddingService()
-        self.database_manager = DatabaseManager()  
+        self.text_processor = text_processor
+        self.embedding_service = embedding_service
+        self.database_manager = database_manager
 
     # pipeline that triggers the creation of LangChain Documents, their embeddings, and the storage of the full object in Qdrant
     def ingest_knowledge_base(self):
@@ -54,16 +54,14 @@ class DocumentHandler:
                 f"Mismatch: {len(documents_to_embed)} documents but {len(embeddings)} embeddings."
                 )
 
-        collection_name = "knowledge_base"
+        collection_name = COLLECTION
 
         if self.database_manager.client.collection_exists(collection_name):
             self.logger.info(f"Collection '{collection_name}' already exists. Removing it for a fresh start.")
             self.database_manager.client.delete_collection(collection_name)
         
         # create collection in Qdrant with the appropriate vector size
-        self.database_manager.create_collection(
-            collection_name, 
-            vector_size=len(embeddings[0]))
+        self.database_manager.create_collection(collection_name, vector_size=len(embeddings[0]))
 
         # combine original chunks with their embeddings into PointStruct objects for upsert into Qdrant
         points = [
@@ -71,8 +69,8 @@ class DocumentHandler:
                 id=index,
                 vector=embedding,
                 payload={
-                    "content": document.page_content,
-                    **document.metadata,
+                    "page_content": document.page_content,
+                    "metadata": document.metadata,
                 },
             )
             for index, (document, embedding) in enumerate(zip(documents_to_embed, embeddings))
@@ -87,7 +85,10 @@ class DocumentHandler:
 
 def main() -> None:
     setup_logging()
-    document_handler = DocumentHandler()
+    text_processor = TextProcessor()
+    embedding_service = EmbeddingService()
+    database_manager = DatabaseManager()
+    document_handler = DocumentHandler(text_processor, embedding_service, database_manager)
     document_handler.ingest_knowledge_base()
 
 if __name__ == "__main__":
