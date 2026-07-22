@@ -1,10 +1,10 @@
 import os
 from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
-from config import MAX_INPUT_SIZE
+from artifact_retrieval.config.config import MAX_INPUT_SIZE
 import logging
 import time
-from TokenCounter import TokenCounter
+from artifact_retrieval.utils.token_counter import TokenCounter
 
 class EmbeddingService:
 

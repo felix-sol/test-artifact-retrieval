@@ -1,9 +1,9 @@
 import unittest
 from pathlib import Path
 from qdrant_client.models import PointStruct
-from EmbeddingService import EmbeddingService
-from data_ingestion.TextProcessor import TextProcessor
-from knowledge_base.DatabaseManager import DatabaseManager
+from artifact_retrieval.services.embedding_service import EmbeddingService
+from artifact_retrieval.ingestion.data_ingestion.text_processor import TextProcessor
+from artifact_retrieval.ingestion.knowledge_base.database_manager import DatabaseManager
 
 # tests run on a small selection of data from the original pipeline 
 class TestDocumentHandlerPipeline(unittest.TestCase):
@@ -12,8 +12,8 @@ class TestDocumentHandlerPipeline(unittest.TestCase):
     self.textProcessor = TextProcessor()
     self.embeddingService = EmbeddingService()
     self.databaseManager = DatabaseManager()
-    self.input_root = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/data_ingestion/test/resources/test_data")  
-    self.small_documents_root = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/data_ingestion/test/resources/test_data/small_test_data")
+    self.input_root = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/src/tests/resources/test_data")  
+    self.small_documents_root = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/src/tests/resources/test_data/small_test_data")
 
 
   # compare the plain amount of files in the input dir with assesed files of reading step

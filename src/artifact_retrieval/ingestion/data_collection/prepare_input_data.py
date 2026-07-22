@@ -2,8 +2,8 @@ from logging import root
 from pathlib import Path
 import shutil
 
-DEFAULT_ROOT = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/data_collection/raw_data")
-DEFAULT_TARGET_ROOT = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/data_collection/input_data")
+DEFAULT_ROOT = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/src/artifact_retrieval/ingestion/data_collection/raw_data")
+DEFAULT_TARGET_ROOT = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/src/artifact_retrieval/ingestion/data_collection/input_data")
 
 def copy_file(root: Path, target_root: Path) -> list[Path]:
     copied: list[Path] = []

@@ -1,5 +1,5 @@
 import tiktoken
-from config import EMBEDDING_MODEL_NAME
+from artifact_retrieval.config.config import EMBEDDING_MODEL_NAME
 
 
 class TokenCounter:

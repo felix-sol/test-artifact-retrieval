@@ -1,14 +1,14 @@
 import unittest
 from pathlib import Path
-from data_ingestion.TextProcessor import TextProcessor
+from artifact_retrieval.ingestion.data_ingestion.text_processor import TextProcessor
 
 # tests run on a small selection of data from the original pipeline 
 class TestTextProcessor(unittest.TestCase):
 
   def setUp(self):
     self.textProcessor = TextProcessor()
-    self.input_root = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/data_ingestion/test/resources/test_data")  
-    self.small_documents_root = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/data_ingestion/test/resources/test_data/small_test_data")
+    self.input_root = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/src/tests/resources/test_data")  
+    self.small_documents_root = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/src/tests/resources/test_data/small_test_data")
 
 
   # assure that each document has set metadata and page_content attributes

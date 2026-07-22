@@ -1,7 +1,7 @@
-from config import setup_logging
-from knowledge_base.config.knowledge_base_config import COLLECTION
-from knowledge_base.DatabaseManager import DatabaseManager
-from EmbeddingService import EmbeddingService
+from artifact_retrieval.config.config import setup_logging
+from artifact_retrieval.ingestion.knowledge_base.config.knowledge_base_config import COLLECTION
+from artifact_retrieval.ingestion.knowledge_base.database_manager import DatabaseManager
+from artifact_retrieval.services.embedding_service import EmbeddingService
 import logging
 
 
@@ -15,7 +15,7 @@ class Retriever:
         self.database_manager = DatabaseManager()
         self.embedding_service = EmbeddingService()
         self.collection_name = COLLECTION
-        self.retriever = None
+        self.retriever = self.initialize_retriever()
 
 
     def create_lang_chain_vector_store(self, collection_name: str) -> QdrantVectorStore:
@@ -33,7 +33,7 @@ class Retriever:
 
 
     # needs an existing collection, knowledge base ingestion must have been done before
-    def create_retriever(self):
+    def initialize_retriever(self):
         vector_store = self.create_lang_chain_vector_store(self.collection_name)
         self.retriever = vector_store.as_retriever(
             search_type="similarity",
@@ -43,23 +43,10 @@ class Retriever:
         return self.retriever
     
 
-    
     def retrieve_documents(self, query: str):
         if self.retriever is None:
             raise ValueError("Retriever has not been created yet. ")
 
         return self.retriever.invoke(query)
     
-
-def main():
-    setup_logging()
-    retriever = Retriever()
-    retriever.create_retriever()
-    # sample query
-    results = retriever.retrieve_documents("How is The Scenario \"The filter popup of the activity dialog does not appear behind the clipboard\" implemented?")
-    print(results[0])
-    print(results[1])
-
-if __name__ == "__main__":
-    main()
 

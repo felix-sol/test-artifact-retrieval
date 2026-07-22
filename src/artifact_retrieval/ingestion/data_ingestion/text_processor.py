@@ -2,8 +2,8 @@ from pathlib import Path
 import re
 from typing import Tuple, Dict, TextIO
 from langchain_core.documents import Document
-from TokenCounter import TokenCounter
-from data_ingestion.config.data_ingestion_config import INPUT_ROOT
+from artifact_retrieval.utils.token_counter import TokenCounter
+from artifact_retrieval.ingestion.data_ingestion.config.data_ingestion_config import INPUT_ROOT
 import logging
 
 

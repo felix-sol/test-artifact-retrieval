@@ -1,8 +1,8 @@
 from pathlib import Path
 import re
 
-INLINE_JBEHAVE_FILE_ROOT = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/data_collection/raw_data/inline_jbehave_java_files")
-OUTPUT_ROOT = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/data_collection/raw_data/specs_from_inline_jbehave_java_files")
+INLINE_JBEHAVE_FILE_ROOT = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/src/artifact_retrieval/ingestion/data_collection/raw_data/inline_jbehave_java_files")
+OUTPUT_ROOT = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/src/artifact_retrieval/ingestion/data_collection/raw_data/specs_from_inline_jbehave_java_files")
 
 META_KEYS = ("filename", "repo_name", "rel_path", "source_type")
 STEP_KEYS = ("Given", "When", "Then", "And", "But")

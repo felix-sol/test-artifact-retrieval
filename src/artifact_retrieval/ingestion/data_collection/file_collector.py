@@ -6,7 +6,7 @@ import shutil
 from pathlib import Path
 
 DEFAULT_GIT_ROOT = Path("/home/WERUM/felix_soltau/projects/pasx-3.4.X/git/file.collection")
-DEFAULT_OUTPUT_ROOT = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/data_collection/raw_data")
+DEFAULT_OUTPUT_ROOT = Path("/home/WERUM/felix_soltau/projects/private/git/test-artifact-retrieval/src/main/ingestion/data_collection/raw_data")
 
 
 def copy_matching_files(repo_root: Path, target_root: Path, suffix: str) -> list[Path]:

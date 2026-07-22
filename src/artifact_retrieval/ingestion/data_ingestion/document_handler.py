@@ -1,11 +1,11 @@
 from qdrant_client.models import PointStruct
 
-from EmbeddingService import EmbeddingService
-from data_ingestion.TextProcessor import TextProcessor
-from config import setup_logging
-from data_ingestion.config.data_ingestion_config import INPUT_ROOT
-from knowledge_base.config.knowledge_base_config import COLLECTION
-from knowledge_base.DatabaseManager import DatabaseManager
+from artifact_retrieval.services.embedding_service import EmbeddingService
+from artifact_retrieval.ingestion.data_ingestion.text_processor import TextProcessor
+from artifact_retrieval.config.config import setup_logging
+from artifact_retrieval.ingestion.data_ingestion.config.data_ingestion_config import INPUT_ROOT
+from artifact_retrieval.ingestion.knowledge_base.config.knowledge_base_config import COLLECTION
+from artifact_retrieval.ingestion.knowledge_base.database_manager import DatabaseManager
 import logging
 
 
@@ -82,7 +82,7 @@ class DocumentHandler:
         )
         self.logger.info(f"Points upserted into collection '{collection_name}' successfully.")
 
-
+# run pipeline with PYTHONPATH=src python -m artifact_retrieval.ingestion.data_ingestion.document_handler
 def main() -> None:
     setup_logging()
     text_processor = TextProcessor()

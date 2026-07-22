@@ -1,6 +1,6 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import VectorParams, PointStruct
-from knowledge_base.config.knowledge_base_config import DISTANCE, QDRANT_URL
+from artifact_retrieval.ingestion.knowledge_base.config.knowledge_base_config import DISTANCE, QDRANT_URL
 import logging
 
 class DatabaseManager:
