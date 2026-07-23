@@ -1,17 +1,17 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
 from fastapi import Depends
 from artifact_retrieval.services.llm_service import LLMService
 from artifact_retrieval.services.retrieval_service import RetrievalService
 from artifact_retrieval.ingestion.knowledge_base.retriever import Retriever
 from artifact_retrieval.application.backend.api.dependencies import get_retrieval_service
+from artifact_retrieval.application.backend.api.schemas.basic_schemas import ChatRequest, ChatResponse
 
 
 router = APIRouter()
 
 
 
-@router.get("/")
+@router.get("/home")
 def root():
     # entry point for the app, Startseite
     return {"Hello": "World"}
@@ -28,10 +28,10 @@ def query_knowledge_base(retrieval_service: RetrievalService = Depends(get_retri
     response = retrieval_service.retrieve_and_generate_response(query)
     return {"response": response}
 
-@router.post("/chat")
-def chat_with_llm(query:str, retrieval_service: RetrievalService = Depends(get_retrieval_service)):
-    response = retrieval_service.retrieve_and_generate_response(query)
-    return {"response": response}
+@router.post("/chat", response_model=ChatResponse)
+def chat_with_llm(query: ChatRequest, retrieval_service: RetrievalService = Depends(get_retrieval_service)) -> ChatResponse:
+    response = retrieval_service.retrieve_and_generate_response(query.content) 
+    return ChatResponse(content=response)
 
 
 @router.get("/download")

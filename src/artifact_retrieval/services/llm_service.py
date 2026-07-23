@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate 
 
-from artifact_retrieval.utils.prompts.system_prompts import RAG_SYSTEM_PROMPT
+from artifact_retrieval.utils.prompts.system_prompts import RAG_SYSTEM_PROMPT, TEST_PROMPT
 
 class LLMService:
 
@@ -15,7 +15,7 @@ class LLMService:
         self.api_key = os.environ.get("API_KEY")
         self.deployment_name = os.environ.get("LLM_DEPLOYMENT_NAME")
         self.llm = self.initialize_chat_model()
-        self.system_prompt = RAG_SYSTEM_PROMPT 
+        self.system_prompt = RAG_SYSTEM_PROMPT # TEST_PROMPT
 
 
     def initialize_chat_model(self):
