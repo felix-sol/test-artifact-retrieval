@@ -1,9 +1,6 @@
-from dns import query
 import requests
 import streamlit as st
-from artifact_retrieval.application.backend.api.schemas.basic_schemas import ChatRequest, ChatResponse
-import pandas as pd
-import numpy as np
+from artifact_retrieval.application.backend.api.schemas.basic_schemas import ChatRequest, ChatResponse, ChatMessage, ChatHistory
 
 FASTAPI_URL = "http://localhost:8000"
 START_URL = f"{FASTAPI_URL}/home"
@@ -13,6 +10,9 @@ st.set_page_config(page_title="AI-Assistant", page_icon=":robot_face:")
 
 if "clicked" not in st.session_state:
     st.session_state.clicked = False
+
+if "messages" not in st.session_state:
+        st.session_state.messages = []    
 
 def start_chat():
     st.session_state.clicked = True
@@ -27,21 +27,16 @@ def send_message(query: str):
     except Exception as e:
         st.error(f"Could not reach backend: {e}")
         return e
-    
 
 if not st.session_state.clicked:
     st.title("Retrieval of Test Artifacts using a Chatbot")
     st.button("Start Chat!", on_click=start_chat)
 else:
     st.title("AI Assistant — Chat")
-    
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
-
 
     query = st.chat_input("How can I assist you?")
     if query:
@@ -61,4 +56,16 @@ else:
                 st.markdown(response_text)
 
         st.session_state.messages.append({"role": "assistant", "content": response_text})
+
+    chat_history = ChatHistory.model_validate(
+            {"messages": st.session_state.messages}
+        )   
+
+    st.download_button(
+            label="Download Chat",
+            data=chat_history.model_dump_json(indent=2),
+            file_name="chat_history.json",
+            mime="application/json",
+            disabled=not st.session_state.messages, 
+        )
             

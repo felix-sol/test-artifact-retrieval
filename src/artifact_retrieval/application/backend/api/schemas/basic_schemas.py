@@ -5,3 +5,11 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     content: str
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatHistory(BaseModel):
+    messages: list[ChatMessage]
+    
