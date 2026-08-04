@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from pydantic import BaseModel
 from artifact_retrieval.application.backend.api.routers import router
 from artifact_retrieval.services.llm_service import LLMService
 from artifact_retrieval.services.retrieval_service import RetrievalService

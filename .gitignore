@@ -220,9 +220,11 @@ __marimo__/
 testEmbedding.py
 
 src/artifact_retrieval/ingestion/knowledge_base/qdrant_data/
+knowledge_base/qdrant_data/
 
 src/artifact_retrieval/ingestion/data_collection/raw_data/
 
 src/artifact_retrieval/ingestion/data_collection/input_data/
 
 src/tests/resources/
+

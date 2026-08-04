@@ -1,8 +1,6 @@
 from fastapi import APIRouter
 from fastapi import Depends
-from artifact_retrieval.services.llm_service import LLMService
 from artifact_retrieval.services.retrieval_service import RetrievalService
-from artifact_retrieval.ingestion.knowledge_base.retriever import Retriever
 from artifact_retrieval.application.backend.api.dependencies import get_retrieval_service
 from artifact_retrieval.application.backend.api.schemas.basic_schemas import ChatRequest, ChatResponse
 

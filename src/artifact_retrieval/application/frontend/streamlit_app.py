@@ -1,6 +1,6 @@
 import requests
 import streamlit as st
-from artifact_retrieval.application.backend.api.schemas.basic_schemas import ChatRequest, ChatResponse, ChatMessage, ChatHistory
+from artifact_retrieval.application.backend.api.schemas.basic_schemas import ChatRequest, ChatResponse, ChatHistory
 
 FASTAPI_URL = "http://localhost:8000"
 START_URL = f"{FASTAPI_URL}/home"

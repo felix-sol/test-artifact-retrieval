@@ -39,12 +39,10 @@ def copy_matching_files(repo_root: Path, target_root: Path, suffix: str) -> list
     
 def collect_feature_files(repo_root: str, repo_name: str, output_root: str) -> list[Path]:
     target = output_root / "feature_files" / f"feature_files_from_{repo_name}"
-    # TODO: repo endung mitgeben, relativen Pfad, Paket und Filename mit an die extrahierten Dokumente anhängen
     return copy_matching_files(repo_root, target, ".feature")
 
 def collect_story_files(repo_root: str, repo_name: str, output_root: str) -> list[Path]:
     target = output_root / "story_files" / f"story_files_from_{repo_name}"
-    # TODO: repo endung mitgeben, relativen Pfad, Paket und Filename mit an die extrahierten Dokumente anhängen
     return copy_matching_files(repo_root, target, ".story")
 
 def collect_inline_jbehave_java_files(repo_root: str, repo_name: str, output_root: str) -> list[Path]:
