@@ -13,33 +13,32 @@ class RetrievalService:
         self.llm_service = llm_service
         
 
-    def retrieve_and_generate_response(self, query: str) -> str:
+    def retrieve_and_generate_response(self, query: str) -> tuple[str, list[dict]]:
         documents = self.retriever.retrieve_documents(query)   
         self.logger.info(f"documents retrieved for query '{query}': {len(documents)}")
-        #content = "\n\n".join([doc.page_content for doc in documents]) # for all retrieved documents as content to be passed to the LLM
-        metadata = [doc.metadata for doc in documents] # for all retrieved documents as metadata to be passed to the LLM
 
-        single_content = documents[0].page_content if documents else "" # only first retrieved document as content to be passed to the LLM
-        single_metadata = metadata[0] if metadata else {} # only first retrieved document's metadata to be passed to the LLM
-        self.logger.info(f"first extracted document: {single_content}")
+        sources_by_key = {}
 
-        response = self.llm_service.generate_response(single_content, single_metadata, query)
+        for doc in documents:
+            metadata = doc.metadata
+
+            source_key = (metadata.get("filename"), metadata.get("repo_name"), metadata.get("rel_path"), metadata.get("source_type"))
+
+            if source_key not in sources_by_key:
+                sources_by_key[source_key] = {
+                    "filename": metadata.get("filename"),
+                    "repo_name": metadata.get("repo_name"),
+                    "rel_path": metadata.get("rel_path"),
+                    "source_type": metadata.get("source_type"),
+                    "chunk_count": 1,
+                }
+            else:
+                sources_by_key[source_key]["chunk_count"] += 1
+
+        sources = list(sources_by_key.values())
+
+        #TODO  Reranker call 
+
+        response = self.llm_service.generate_response(documents, query)
         self.logger.info(f"response generated")
-        return response
-
-
-
-# def main():
-#     setup_logging()
-#     retriever = Retriever()
-#     llm_service = LLMService()
-#     retrieval_service = RetrievalService(retriever, llm_service)
-#     query = "How is The Scenario \"The filter popup of the activity dialog does not appear behind the clipboard\" implemented?"
-
-#     response = retrieval_service.retrieve_and_generate_response(query)
-
-#     print(response)
-
-
-# if __name__ == "__main__":
-#     main()    
+        return response, sources
